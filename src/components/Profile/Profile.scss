@@ -1,0 +1,76 @@
+.profile__container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    background-color: rgb(238, 238, 238);
+}
+
+.profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+
+    &__img {
+        width: 100px;
+        height: 100px;
+
+        & img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+    }
+
+    &__info {
+        font-weight: 700;
+
+        & span {
+            font-weight: normal;
+        }
+    }
+
+    &__btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+    }
+
+    &__closeBtn {
+        position: relative;
+        width: 100%;
+        height: 100%;
+
+        & span {
+            display: block;
+        }
+
+        & span::before,
+        & span::after {
+            content: ' ';
+            display: block;
+            transition: all 0.5s ease;
+            left: 0;
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #000;
+        }
+
+        & span::before {
+            transform: rotate(-45deg);
+            top: calc(50% - 1px)
+          }
+        
+        & span::after {
+            transform: rotate(45deg);
+            top: calc(50% - 1px)
+        }
+    }
+}
