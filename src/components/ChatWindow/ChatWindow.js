@@ -11,6 +11,7 @@ import 'firebase/compat/firestore';
 import { useParams } from "react-router-dom";
 import { useStateValue } from "../../StateProvider";
 import UserIcon from "../UserIcon/UserIcon";
+import { AvatarGenerator } from 'random-avatar-generator';
 
 
 
@@ -23,23 +24,18 @@ const ChatWindow = () => {
     const inputRef = useRef(null);
     const messageEndRef = useRef(null);
     const [randomMessage, setRandomMessage] = useState('');
-    const [isMessageSend, setMessageSend] = useState(false);
+
+    const generator = new AvatarGenerator();
     const messageAPI = 'https://api.chucknorris.io/jokes/random';
 
     useEffect(() => {
         fetch(messageAPI)
         .then((res) => res.json())
         .then((res) => {
-            setRandomMessage(res.value);
-        })
-    }, [isMessageSend]);
-
-    useEffect(() => {
-        setTimeout(() => {
-
-        }, 10000)
-    }, [randomMessage])
-
+                setRandomMessage(res.value)
+            }
+        )
+    }, [messages]);
 
     useEffect(() => {
         const cleanUp1 = db.collection('chats')
@@ -82,25 +78,20 @@ const ChatWindow = () => {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
+        db.collection('chats').doc(chatId).collection('messages').add({
+            message: randomMessage,
+            name: chatName,
+            uid: "fghsklhgblo11122223334555gtoishhnb",
+            profilePic: generator.generateRandomAvatar('avatar'),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+
         db.collection('chats').doc(chatId).update({
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
         inputRef.current.value = '';
-        setMessageSend(true);
-    };
 
-    const renderMessage = (message, prevMessage) => {
-        return (
-            <Message
-            renderRecieverMessageInfo={(!prevMessage || message.uid !== prevMessage.uid) && message.uid !== user.uid }
-            name={chatName}
-            text={randomMessage}
-            profilePic={message.profilePic}
-            timestamp={message.timestamp?.toDate()}
-            uid={message.uid}
-        />
-        )
-    }
+    };
 
     return (
         <div className="chat">
@@ -117,15 +108,22 @@ const ChatWindow = () => {
                     const showDate = (prevMessage?.timestamp?.toDate().getDate() !== message.timestamp?.toDate().getDate()) ||
                                      (prevMessage?.timestamp?.toDate().getMonth() !== message.timestamp?.toDate().getMonth()) ||
                                      (prevMessage?.timestamp?.toDate().getYear() !== message.timestamp?.toDate().getYear());
-
                     return (
                         <React.Fragment key={message.timestamp + message.id}>
                             { showDate && <ChatDate date={message.timestamp?.toDate()} />}
-                            {renderMessage(message, prevMessage)}
+                            <Message
+                                renderRecieverMessageInfo={(!prevMessage || message.uid !== prevMessage.uid) && message.uid !== user.uid }
+                                name={message.name}
+                                text={message.message}
+                                profilePic={message.profilePic}
+                                timestamp={message.timestamp?.toDate()}
+                                uid={message.uid}
+                            />
                         </React.Fragment>
                     )
                 })}
-                <div ref={messageEndRef}></div>
+                
+                <div ref={messageEndRef} />
 
             </div>
 
